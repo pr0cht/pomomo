@@ -1,8 +1,8 @@
 :root {
-  color-scheme: dark;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #07111f;
-  color: #f4f7fb;
+  color-scheme: light;
+  font-family: 'Roboto', sans-serif;
+  background: #FCF8F8;
+  color: #3f3030;
 }
 
 * {
@@ -12,11 +12,13 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(135deg, #07111f 0%, #17253d 100%);
+  background: linear-gradient(135deg, #FCF8F8 0%, #FBEFEF 100%);
+  color: #3f3030;
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -37,11 +39,12 @@ header {
 header h1 {
   margin: 0;
   font-size: 2rem;
+  color: #3f3030;
 }
 
 header p {
   margin: 0;
-  color: #9eb2cb;
+  color: #7a6767;
 }
 
 .controls {
@@ -52,17 +55,19 @@ header p {
 
 .card,
 .queue-card,
-.timer-card {
-  background: rgba(10, 19, 32, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+.timer-card,
+.modal-card {
+  background: #ffffff;
+  border: 1px solid #f9dfdf;
+  border-radius: 18px;
   padding: 18px;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 16px 40px rgba(245, 175, 175, 0.18);
 }
 
 .card h2,
 .queue-card h2,
-.timer-card h2 {
+.timer-card h2,
+.modal-card h2 {
   margin-top: 0;
   margin-bottom: 12px;
   font-size: 1.1rem;
@@ -73,15 +78,16 @@ label {
   flex-direction: column;
   gap: 6px;
   margin-bottom: 12px;
-  color: #cdd9e8;
+  color: #6f5b5b;
 }
 
-input {
-  border: none;
+input,
+select {
+  border: 1px solid #f9dfdf;
   border-radius: 10px;
   padding: 10px 12px;
-  background: #111d2e;
-  color: #f4f7fb;
+  background: #fffdfd;
+  color: #3f3030;
 }
 
 button {
@@ -96,21 +102,58 @@ button:hover {
   transform: translateY(-1px);
 }
 
-#add-task-btn,
-#start-session-btn {
-  background: #4f7cff;
-  color: #fff;
-}
-
-#add-break-btn {
-  background: #2eaa70;
-  color: #fff;
+#start-session-btn,
+.icon-button,
+#save-block-btn {
+  background: #F5AFAF;
+  color: #3f3030;
 }
 
 #pause-btn,
-#reset-btn {
-  background: #233449;
-  color: #f4f7fb;
+#reset-btn,
+#cancel-btn {
+  background: #FBEFEF;
+  color: #5f4b4b;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+}
+
+.icon-button img {
+  width: 20px;
+  height: 20px;
+}
+
+.queue-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #f9dfdf;
+  cursor: grab;
+}
+
+.queue-item img.drag-handle {
+  width: 18px;
+  height: 18px;
+  opacity: 0.7;
+}
+
+.timer-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.timer-icon {
+  width: 24px;
+  height: 24px;
 }
 
 .queue-header {
@@ -133,43 +176,45 @@ button:hover {
   gap: 12px;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid #f9dfdf;
   cursor: grab;
 }
 
 .queue-item.task {
-  background: rgba(79, 124, 255, 0.16);
+  background: #FBEFEF;
 }
 
 .queue-item.break {
-  background: rgba(46, 170, 112, 0.16);
+  background: #FCF8F8;
 }
 
 .queue-badge {
-  background: rgba(255, 255, 255, 0.12);
+  background: #ffffff;
   padding: 6px 10px;
   border-radius: 999px;
   font-size: 0.8rem;
   min-width: 64px;
   text-align: center;
+  color: #5f4b4b;
 }
 
 .queue-item strong {
   display: block;
+  color: #3f3030;
 }
 
 .queue-item p {
   margin: 4px 0 0;
-  color: #9eb2cb;
+  color: #8b7575;
 }
 
 .queue-order {
-  color: #7f91aa;
+  color: #8b7575;
 }
 
 .empty-state {
   margin: 0;
-  color: #9eb2cb;
+  color: #8b7575;
 }
 
 .timer-card {
@@ -179,16 +224,157 @@ button:hover {
 
 .current-step {
   font-size: 1.2rem;
-  color: #f4f7fb;
+  color: #3f3030;
 }
 
 .time-display {
   font-size: 3.5rem;
   font-weight: 700;
   letter-spacing: 0.08em;
+  color: #3f3030;
 }
 
 .timer-actions {
   display: flex;
   gap: 10px;
+}
+
+.modal-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: #FCF8F8;
+}
+
+.modal-card {
+  width: min(100%, 420px);
+}
+
+.block-type-selector {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.type-card {
+  display: block;
+  position: relative;
+}
+
+.type-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.type-card-content {
+  border: 1px solid #f9dfdf;
+  border-radius: 18px;
+  padding: 16px;
+  background: #fffdfd;
+  min-height: 100px;
+}
+
+.type-card-content span {
+  display: block;
+  font-weight: 700;
+  color: #3f3030;
+  margin-bottom: 8px;
+}
+
+.type-card-content p {
+  margin: 0;
+  color: #8b7575;
+}
+
+.type-card input:checked + .type-card-content {
+  border-color: #F5AFAF;
+  background: #FBEFEF;
+  box-shadow: inset 0 0 0 2px rgba(245, 175, 175, 0.35);
+}
+
+.type-card:hover .type-card-content {
+  border-color: #f5afaf;
+}
+
+.window-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f9dfdf;
+  -webkit-app-region: drag;
+}
+
+.window-title {
+  font-size: 1rem;
+  color: #3f3030;
+  font-weight: 700;
+}
+
+.window-close-btn {
+  border: none;
+  background: transparent;
+  padding: 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+}
+
+.window-close-btn img {
+  width: 18px;
+  height: 18px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.notification-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: #FCF8F8;
+}
+
+.notification-card {
+  width: min(100%, 420px);
+  background: #ffffff;
+  border: 1px solid #f9dfdf;
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 20px 45px rgba(245, 175, 175, 0.18);
+  display: grid;
+  gap: 16px;
+}
+
+.notification-label {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #3f3030;
+}
+
+.notification-message {
+  margin: 0;
+  color: #5f4b4b;
+}
+
+.notification-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.notification-actions button {
+  min-width: 100px;
 }

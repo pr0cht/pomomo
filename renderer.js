@@ -1,15 +1,10 @@
-const taskNameInput = document.getElementById('task-name');
-const taskMinutesInput = document.getElementById('task-minutes');
-const breakNameInput = document.getElementById('break-name');
-const breakMinutesInput = document.getElementById('break-minutes');
 const queueEl = document.getElementById('queue');
 const currentStepEl = document.getElementById('current-step');
 const timeDisplayEl = document.getElementById('time-display');
 const pauseBtn = document.getElementById('pause-btn');
 const resetBtn = document.getElementById('reset-btn');
 const startSessionBtn = document.getElementById('start-session-btn');
-const addTaskBtn = document.getElementById('add-task-btn');
-const addBreakBtn = document.getElementById('add-break-btn');
+const addBlockBtn = document.getElementById('add-block-btn');
 
 const state = {
   steps: [],
@@ -53,6 +48,7 @@ function renderQueue() {
     item.dataset.id = step.id;
 
     item.innerHTML = `
+      <img class="drag-handle" src="assets/icons/drag.png" alt="Drag" />
       <div class="queue-badge">${step.type === 'task' ? 'Task' : 'Break'}</div>
       <div>
         <strong>${step.label}</strong>
@@ -108,6 +104,24 @@ function updateTimerView() {
   timeDisplayEl.textContent = formatTime(state.remainingSeconds);
 }
 
+function startTimer() {
+  clearInterval(state.timerId);
+  state.timerId = setInterval(() => {
+    if (state.isPaused) {
+      return;
+    }
+
+    state.remainingSeconds -= 1;
+
+    if (state.remainingSeconds <= 0) {
+      handleTimerExpired();
+      return;
+    }
+
+    updateTimerView();
+  }, 1000);
+}
+
 function startSession() {
   if (!state.steps.length) {
     return;
@@ -118,43 +132,38 @@ function startSession() {
   state.isPaused = false;
   state.remainingSeconds = state.steps[0].duration * 60;
   updateTimerView();
+  startTimer();
+}
 
-  state.timerId = setInterval(() => {
-    if (state.isPaused) {
-      return;
-    }
+function handleTimerExpired() {
+  clearInterval(state.timerId);
+  state.timerId = null;
+  state.isPaused = true;
+  pauseBtn.textContent = 'Resume';
+  updateTimerView();
 
-    state.remainingSeconds -= 1;
+  const finishedStep = state.steps[state.activeIndex];
+  window.electronAPI.openTimerNotification({
+    type: finishedStep.type,
+    label: finishedStep.label,
+  });
+}
 
-    if (state.remainingSeconds <= 0) {
-      advanceSession();
-      return;
-    }
+function advanceToNextBlock(startPaused = false) {
+  state.activeIndex = (state.activeIndex + 1) % state.steps.length;
+  state.remainingSeconds = state.steps[state.activeIndex].duration * 60;
+  state.isPaused = startPaused;
+  pauseBtn.textContent = state.isPaused ? 'Resume' : 'Pause';
+  updateTimerView();
 
-    updateTimerView();
-  }, 1000);
+  if (!state.isPaused) {
+    startTimer();
+  }
 }
 
 function advanceSession() {
   clearInterval(state.timerId);
-  state.activeIndex = (state.activeIndex + 1) % state.steps.length;
-  state.remainingSeconds = state.steps[state.activeIndex].duration * 60;
-  updateTimerView();
-
-  state.timerId = setInterval(() => {
-    if (state.isPaused) {
-      return;
-    }
-
-    state.remainingSeconds -= 1;
-
-    if (state.remainingSeconds <= 0) {
-      advanceSession();
-      return;
-    }
-
-    updateTimerView();
-  }, 1000);
+  advanceToNextBlock(false);
 }
 
 function togglePause() {
@@ -162,8 +171,17 @@ function togglePause() {
     return;
   }
 
-  state.isPaused = !state.isPaused;
-  pauseBtn.textContent = state.isPaused ? 'Resume' : 'Pause';
+  if (state.timerId) {
+    clearInterval(state.timerId);
+    state.timerId = null;
+    state.isPaused = true;
+    pauseBtn.textContent = 'Resume';
+    return;
+  }
+
+  state.isPaused = false;
+  pauseBtn.textContent = 'Pause';
+  startTimer();
 }
 
 function resetSession() {
@@ -182,22 +200,22 @@ function resetSession() {
   updateTimerView();
 }
 
-addTaskBtn.addEventListener('click', () => {
-  const label = taskNameInput.value.trim() || 'New task';
-  const duration = taskMinutesInput.value;
-  state.steps.push(createStep('task', label, duration));
-  renderQueue();
-  taskNameInput.value = '';
-  taskMinutesInput.value = '25';
+addBlockBtn.addEventListener('click', () => {
+  window.electronAPI.openAddBlockWindow();
 });
 
-addBreakBtn.addEventListener('click', () => {
-  const label = breakNameInput.value.trim() || 'Break';
-  const duration = breakMinutesInput.value;
-  state.steps.push(createStep('break', label, duration));
+window.electronAPI.onBlockAdded((block) => {
+  state.steps.push(createStep(block.type, block.label, block.duration));
   renderQueue();
-  breakNameInput.value = '';
-  breakMinutesInput.value = '5';
+  updateTimerView();
+});
+
+window.electronAPI.onTimerAction((action) => {
+  if (action === 'continue') {
+    advanceToNextBlock(false);
+  } else if (action === 'pause') {
+    advanceToNextBlock(true);
+  }
 });
 
 startSessionBtn.addEventListener('click', startSession);

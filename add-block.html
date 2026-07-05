@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add block</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="modal-body">
+    <div class="modal-card">
+      <div class="window-header">
+        <div class="window-title">Add block</div>
+        <button id="close-window-btn" class="window-close-btn">
+          <img src="assets/icons/close.png" alt="Close window" />
+        </button>
+      </div>
+
+      <div class="block-type-selector">
+        <label class="type-card">
+          <input type="radio" name="block-type" value="task" checked />
+          <div class="type-card-content">
+            <span>Task</span>
+            <p>Focus on an active work item.</p>
+          </div>
+        </label>
+        <label class="type-card">
+          <input type="radio" name="block-type" value="break" />
+          <div class="type-card-content">
+            <span>Break</span>
+            <p>Rest and recharge between work blocks.</p>
+          </div>
+        </label>
+      </div>
+
+      <label>
+        Name
+        <input id="block-name" placeholder="Enter a name" />
+      </label>
+      <label>
+        Minutes
+        <input id="block-minutes" type="number" min="1" value="25" />
+      </label>
+      <div class="modal-actions">
+        <button id="cancel-btn">Cancel</button>
+        <button id="save-block-btn">Save block</button>
+      </div>
+    </div>
+
+    <script src="add-block.js"></script>
+  </body>
+</html>
