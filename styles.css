@@ -1,0 +1,194 @@
+:root {
+  color-scheme: dark;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #07111f;
+  color: #f4f7fb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #07111f 0%, #17253d 100%);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  display: grid;
+  gap: 20px;
+}
+
+header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+header p {
+  margin: 0;
+  color: #9eb2cb;
+}
+
+.controls {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.card,
+.queue-card,
+.timer-card {
+  background: rgba(10, 19, 32, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+}
+
+.card h2,
+.queue-card h2,
+.timer-card h2 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  color: #cdd9e8;
+}
+
+input {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #111d2e;
+  color: #f4f7fb;
+}
+
+button {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+#add-task-btn,
+#start-session-btn {
+  background: #4f7cff;
+  color: #fff;
+}
+
+#add-break-btn {
+  background: #2eaa70;
+  color: #fff;
+}
+
+#pause-btn,
+#reset-btn {
+  background: #233449;
+  color: #f4f7fb;
+}
+
+.queue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.queue-list {
+  display: grid;
+  gap: 10px;
+}
+
+.queue-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: grab;
+}
+
+.queue-item.task {
+  background: rgba(79, 124, 255, 0.16);
+}
+
+.queue-item.break {
+  background: rgba(46, 170, 112, 0.16);
+}
+
+.queue-badge {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  min-width: 64px;
+  text-align: center;
+}
+
+.queue-item strong {
+  display: block;
+}
+
+.queue-item p {
+  margin: 4px 0 0;
+  color: #9eb2cb;
+}
+
+.queue-order {
+  color: #7f91aa;
+}
+
+.empty-state {
+  margin: 0;
+  color: #9eb2cb;
+}
+
+.timer-card {
+  display: grid;
+  gap: 12px;
+}
+
+.current-step {
+  font-size: 1.2rem;
+  color: #f4f7fb;
+}
+
+.time-display {
+  font-size: 3.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.timer-actions {
+  display: flex;
+  gap: 10px;
+}

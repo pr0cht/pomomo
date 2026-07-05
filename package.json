@@ -1,0 +1,13 @@
+{
+  "name": "pomomo",
+  "version": "1.0.0",
+  "description": "An Electron-based Pomodoro planner with draggable task and break blocks",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "private": true,
+  "devDependencies": {
+    "electron": "^37.2.0"
+  }
+}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pomomo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header>
+        <h1>Pomomo</h1>
+        <p>Build your focus flow with customizable task and break blocks.</p>
+      </header>
+
+      <section class="controls">
+        <div class="card">
+          <h2>Add task block</h2>
+          <label>
+            Task name
+            <input id="task-name" placeholder="Write a task" />
+          </label>
+          <label>
+            Minutes
+            <input id="task-minutes" type="number" min="1" value="25" />
+          </label>
+          <button id="add-task-btn">Add task block</button>
+        </div>
+
+        <div class="card">
+          <h2>Add break block</h2>
+          <label>
+            Break name
+            <input id="break-name" placeholder="Take a break" />
+          </label>
+          <label>
+            Minutes
+            <input id="break-minutes" type="number" min="1" value="5" />
+          </label>
+          <button id="add-break-btn">Add break block</button>
+        </div>
+      </section>
+
+      <section class="queue-card">
+        <div class="queue-header">
+          <h2>Session queue</h2>
+          <span>Drag blocks to reorder your plan</span>
+        </div>
+        <div id="queue" class="queue-list"></div>
+      </section>
+
+      <section class="timer-card">
+        <h2>Current step</h2>
+        <div id="current-step" class="current-step">No session started yet.</div>
+        <div id="time-display" class="time-display">00:00</div>
+        <div class="timer-actions">
+          <button id="start-session-btn">Start session</button>
+          <button id="pause-btn">Pause</button>
+          <button id="reset-btn">Reset</button>
+        </div>
+      </section>
+    </div>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>
