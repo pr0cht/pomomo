@@ -3,6 +3,7 @@
   font-family: 'Roboto', sans-serif;
   background: #FCF8F8;
   color: #3f3030;
+  font-size: 14px;
 }
 
 * {
@@ -14,37 +15,53 @@ body {
   min-height: 100vh;
   background: linear-gradient(135deg, #FCF8F8 0%, #FBEFEF 100%);
   color: #3f3030;
+  font-size: 0.95rem;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 button,
 input,
 select {
-  font: inherit;
+  font: 14px 'Roboto', sans-serif;
+}
+
+body {
+  font-size: 14px;
 }
 
 .app-shell {
-  max-width: 1100px;
+  max-width: 760px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 16px;
   display: grid;
-  gap: 20px;
+  gap: 16px;
 }
 
-header {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.window-title,
+.app-header h1,
+.app-header p,
+.timer-header h2,
+.queue-header h2,
+.modal-card h2,
+.modal-card label,
+.notification-label,
+.settings-card h3,
+.settings-option-title {
+  font-size: 0.95rem;
 }
 
-header h1 {
-  margin: 0;
-  font-size: 2rem;
-  color: #3f3030;
-}
-
-header p {
-  margin: 0;
-  color: #7a6767;
+.app-shell {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 16px;
+  display: grid;
+  gap: 16px;
 }
 
 .controls {
@@ -69,8 +86,8 @@ header p {
 .timer-card h2,
 .modal-card h2 {
   margin-top: 0;
-  margin-bottom: 12px;
-  font-size: 1.1rem;
+  margin-bottom: 10px;
+  font-size: 1rem;
 }
 
 label {
@@ -167,6 +184,14 @@ button:hover {
 .queue-list {
   display: grid;
   gap: 10px;
+  max-height: 280px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.queue-list::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
 }
 
 .queue-item {
@@ -182,6 +207,26 @@ button:hover {
 
 .queue-item.task {
   background: #FBEFEF;
+}
+
+.queue-item.add-block-placeholder {
+  background: rgba(245, 175, 175, 0.12);
+  opacity: 0.72;
+  cursor: pointer;
+  border-style: dashed;
+}
+
+.queue-item.add-block-placeholder:hover {
+  opacity: 1;
+}
+
+.queue-item.add-block-placeholder .queue-badge {
+  background: #fff5f5;
+  color: #7a5b5b;
+}
+
+.queue-item.add-block-placeholder .queue-order {
+  color: #7a5b5b;
 }
 
 .queue-item.break {
@@ -219,7 +264,24 @@ button:hover {
 
 .timer-card {
   display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.timer-summary {
+  display: flex;
+  flex-wrap: wrap;
   gap: 12px;
+  align-items: center;
+  color: #6f5b5b;
+  font-size: 0.95rem;
+}
+
+.timer-summary span {
+  background: #fff6f6;
+  border: 1px solid #f5dfdf;
+  border-radius: 999px;
+  padding: 8px 12px;
 }
 
 .current-step {
@@ -228,7 +290,7 @@ button:hover {
 }
 
 .time-display {
-  font-size: 3.5rem;
+  font-size: 2.6rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: #3f3030;
@@ -300,15 +362,23 @@ button:hover {
   border-color: #f5afaf;
 }
 
-.window-header {
+.app-titlebar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #f9dfdf;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #f9dfdf;
+  box-shadow: 0 16px 40px rgba(245, 175, 175, 0.18);
   -webkit-app-region: drag;
+}
+
+.app-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .window-title {
@@ -317,18 +387,151 @@ button:hover {
   font-weight: 700;
 }
 
-.window-close-btn {
+.window-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.window-control-btn {
   border: none;
-  background: transparent;
-  padding: 8px;
+  background: #FBEFEF;
+  color: #3f3030;
+  width: 40px;
+  height: 40px;
   border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  transition: background 180ms ease, transform 180ms ease;
   -webkit-app-region: no-drag;
 }
 
-.window-close-btn img {
-  width: 18px;
-  height: 18px;
+.window-control-btn:hover {
+  background: #f5afaf;
+  transform: translateY(-1px);
+}
+
+.window-control-btn img {
+  width: 16px;
+  height: 16px;
+}
+
+.window-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.window-close-btn {
+  border: none;
+  background: #FBEFEF;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.modal-card.settings-card-window {
+  width: min(100%, 340px);
+}
+
+.secondary-button {
+  border: none;
+  background: #F5AFAF;
+  color: #3f3030;
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.queue-card.collapsed .queue-list {
+  display: none;
+}
+
+.window-control-btn.active {
+  background: #f5dfdf;
+}
+
+.settings-close-btn {
+  width: 34px;
+  height: 34px;
+}
+
+.settings-window-header {
+  margin-bottom: 14px;
+}
+
+.settings-option {
+  display: grid;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.settings-option input {
+  width: 16px;
+  height: 16px;
+}
+
+.settings-option-description {
+  color: #6f5b5b;
+  font-size: 0.9rem;
+}
+
+.settings-option-title {
+  font-weight: 700;
+}
+
+.settings-card-window {
+  width: min(100%, 340px);
+}
+
+.settings-close-btn img {
+  width: 14px;
+  height: 14px;
+}
+
+.queue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.queue-header button {
+  font-size: 0.85rem;
+}
+
+.app-shell {
+  max-width: 700px;
+}
+  background: #ffffff;
+  border: 1px solid #f9dfdf;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 16px 40px rgba(245, 175, 175, 0.18);
+}
+
+.settings-card h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 1.05rem;
+}
+
+.settings-card p {
+  margin: 0;
+  color: #6f5b5b;
+}
+
+.hidden {
+  display: none;
 }
 
 .modal-actions {

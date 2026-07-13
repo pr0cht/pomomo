@@ -4,14 +4,16 @@ const path = require('path');
 let mainWindow;
 let addBlockWindow;
 let notificationWindow;
+let settingsWindow;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 900,
-    minWidth: 980,
-    minHeight: 760,
+    width: 380,
+    height: 720,
+    minWidth: 380,
+    minHeight: 660,
     title: 'Pomomo',
+    frame: false,
     backgroundColor: '#FCF8F8',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -61,7 +63,7 @@ function createNotificationWindow(finishedStep) {
 
   notificationWindow = new BrowserWindow({
     width: 420,
-    height: 280,
+    height: 220,
     resizable: false,
     frame: false,
     title: 'Block finished',
@@ -86,6 +88,31 @@ ipcMain.on('open-add-block-window', () => {
   createAddBlockWindow();
 });
 
+ipcMain.on('open-settings-window', () => {
+  createSettingsWindow();
+});
+
+ipcMain.on('minimize-window', () => {
+  if (mainWindow) {
+    mainWindow.minimize();
+  }
+});
+
+ipcMain.on('pin-window', () => {
+  if (mainWindow) {
+    const currentTop = mainWindow.isAlwaysOnTop();
+    mainWindow.setAlwaysOnTop(!currentTop, 'floating');
+  }
+});
+
+ipcMain.on('update-setting', (_event, key, value) => {
+  settings[key] = value;
+});
+
+ipcMain.handle('get-settings', () => {
+  return settings;
+});
+
 ipcMain.on('add-block-submit', (_event, block) => {
   mainWindow.webContents.send('block-added', block);
 
@@ -105,6 +132,40 @@ ipcMain.on('timer-action', (_event, action) => {
     notificationWindow.close();
   }
 });
+
+const settings = {
+  autoStartTask: false,
+};
+
+function createSettingsWindow() {
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
+    settingsWindow.focus();
+    return;
+  }
+
+  settingsWindow = new BrowserWindow({
+    width: 340,
+    height: 280,
+    minWidth: 340,
+    minHeight: 260,
+    resizable: false,
+    frame: false,
+    title: 'Settings',
+    parent: mainWindow,
+    modal: true,
+    backgroundColor: '#FCF8F8',
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+
+  settingsWindow.loadFile('settings.html');
+  settingsWindow.on('closed', () => {
+    settingsWindow = null;
+  });
+}
 
 app.whenReady().then(() => {
   createWindow();

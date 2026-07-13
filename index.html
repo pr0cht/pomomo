@@ -11,29 +11,17 @@
   </head>
   <body>
     <div class="app-shell">
-      <header>
-        <h1>Pomomo</h1>
-        <p>Build your focus flow with customizable task and break blocks.</p>
-      </header>
-
-      <section class="controls">
-        <div class="card add-block-card">
-          <h2>Add a block</h2>
-          <p>Create a task or break block from a dedicated window.</p>
-          <button id="add-block-btn" class="icon-button">
-            <img src="assets/icons/add.png" alt="Add block" />
-            <span>Add Block</span>
+      <div class="window-header app-titlebar">
+        <div class="window-title">Pomomo</div>
+        <div class="window-controls">
+          <button id="minimize-btn" class="window-control-btn" aria-label="Minimize window">_</button>
+          <button id="pin-btn" class="window-control-btn" aria-label="Pin window">📌</button>
+          <button id="settings-btn" class="window-control-btn" aria-label="Open settings">⚙</button>
+          <button id="close-window-btn" class="window-control-btn" aria-label="Close window">
+            <img src="assets/icons/close.png" alt="Close" />
           </button>
         </div>
-      </section>
-
-      <section class="queue-card">
-        <div class="queue-header">
-          <h2>Session queue</h2>
-          <span>Drag blocks to reorder your plan</span>
-        </div>
-        <div id="queue" class="queue-list"></div>
-      </section>
+      </div>
 
       <section class="timer-card">
         <div class="timer-header">
@@ -42,11 +30,23 @@
         </div>
         <div id="current-step" class="current-step">No session started yet.</div>
         <div id="time-display" class="time-display">00:00</div>
+        <div class="timer-summary">
+          <span id="total-duration">Total: 0 min</span>
+          <span id="end-time">Ends at --</span>
+        </div>
         <div class="timer-actions">
           <button id="start-session-btn">Start session</button>
           <button id="pause-btn">Pause</button>
           <button id="reset-btn">Reset</button>
         </div>
+      </section>
+
+      <section class="queue-card">
+        <div class="queue-header">
+          <h2>Session queue</h2>
+          <button id="toggle-queue-btn" class="secondary-button">Hide queue</button>
+        </div>
+        <div id="queue" class="queue-list"></div>
       </section>
     </div>
 
