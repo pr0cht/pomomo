@@ -3,6 +3,7 @@ const currentStepEl = document.getElementById('current-step');
 const timeDisplayEl = document.getElementById('time-display');
 const pauseBtn = document.getElementById('pause-btn');
 const resetBtn = document.getElementById('reset-btn');
+const skipBtn = document.getElementById('skip-btn');
 const startSessionBtn = document.getElementById('start-session-btn');
 const minimizeBtn = document.getElementById('minimize-btn');
 const pinBtn = document.getElementById('pin-btn');
@@ -12,11 +13,28 @@ const toggleQueueBtn = document.getElementById('toggle-queue-btn');
 
 const state = {
   steps: [],
-  activeIndex: 0,
+  activeId: null,
   timerId: null,
   isPaused: false,
   remainingSeconds: 0,
+  finishedIds: new Set(),
 };
+
+function getActiveIndex() {
+  return state.steps.findIndex((step) => step.id === state.activeId);
+}
+
+function getActiveStep() {
+  const index = getActiveIndex();
+  return index >= 0 ? state.steps[index] : null;
+}
+
+function markCurrentFinished() {
+  const currentStep = getActiveStep();
+  if (currentStep) {
+    state.finishedIds.add(currentStep.id);
+  }
+}
 
 function makeId() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -54,8 +72,14 @@ function renderQueue() {
     queueEl.innerHTML = '<p class="empty-state">Add your first task or break block to build your flow.</p>';
   } else {
     state.steps.forEach((step, index) => {
+      const isActive = step.id === state.activeId;
+      const isFinished = state.finishedIds.has(step.id) && !isActive;
+      const itemClasses = ['queue-item', step.type];
+      if (isActive) itemClasses.push('current');
+      if (isFinished) itemClasses.push('finished');
+
       const item = document.createElement('article');
-      item.className = `queue-item ${step.type}`;
+      item.className = itemClasses.join(' ');
       item.draggable = true;
       item.dataset.id = step.id;
 
@@ -119,6 +143,10 @@ function reorderSteps(draggedId, targetId) {
 
   const [movedStep] = state.steps.splice(draggedIndex, 1);
   state.steps.splice(targetIndex, 0, movedStep);
+
+  if (state.finishedIds.has(movedStep.id)) {
+    state.finishedIds.delete(movedStep.id);
+  }
 }
 
 function startTimer() {
@@ -145,10 +173,12 @@ function startSession() {
   }
 
   clearInterval(state.timerId);
-  state.activeIndex = 0;
+  state.finishedIds.clear();
+  state.activeId = state.steps[0].id;
   state.isPaused = false;
   state.remainingSeconds = state.steps[0].duration * 60;
   updateTimerView();
+  renderQueue();
   startTimer();
 }
 
@@ -156,11 +186,14 @@ async function handleTimerExpired() {
   clearInterval(state.timerId);
   state.timerId = null;
 
-  const finishedStep = state.steps[state.activeIndex];
-  window.electronAPI.openTimerNotification({
-    type: finishedStep.type,
-    label: finishedStep.label,
-  });
+  markCurrentFinished();
+  const finishedStep = getActiveStep();
+  if (finishedStep) {
+    window.electronAPI.openTimerNotification({
+      type: finishedStep.type,
+      label: finishedStep.label,
+    });
+  }
 
   const settings = await window.electronAPI.getSettings();
   const autoStart = settings && settings.autoStartTask;
@@ -171,15 +204,24 @@ async function handleTimerExpired() {
     state.isPaused = true;
     pauseBtn.textContent = 'Resume';
     updateTimerView();
+    renderQueue();
   }
 }
 
 function advanceToNextBlock(startPaused = false) {
-  state.activeIndex = (state.activeIndex + 1) % state.steps.length;
-  state.remainingSeconds = state.steps[state.activeIndex].duration * 60;
+  if (!state.steps.length) {
+    return;
+  }
+
+  markCurrentFinished();
+  const currentIndex = getActiveIndex();
+  const nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % state.steps.length;
+  state.activeId = state.steps[nextIndex].id;
+  state.remainingSeconds = state.steps[nextIndex].duration * 60;
   state.isPaused = startPaused;
   pauseBtn.textContent = state.isPaused ? 'Resume' : 'Pause';
   updateTimerView();
+  renderQueue();
 
   if (!state.isPaused) {
     startTimer();
@@ -214,15 +256,18 @@ function resetSession() {
   state.timerId = null;
   state.isPaused = false;
   pauseBtn.textContent = 'Pause';
+  state.finishedIds.clear();
 
   if (state.steps.length) {
-    state.activeIndex = 0;
+    state.activeId = state.steps[0].id;
     state.remainingSeconds = state.steps[0].duration * 60;
   } else {
+    state.activeId = null;
     state.remainingSeconds = 0;
   }
 
   updateTimerView();
+  renderQueue();
 }
 
 window.electronAPI.onBlockAdded((block) => {
@@ -255,18 +300,20 @@ toggleQueueBtn.addEventListener('click', () => {
 });
 
 function getCurrentBlockSeconds() {
-  return state.steps.length ? state.steps[state.activeIndex].duration * 60 : 0;
+  const activeStep = getActiveStep();
+  return activeStep ? activeStep.duration * 60 : 0;
 }
 
 function updateTimerView() {
-  if (!state.steps.length) {
+  const activeStep = getActiveStep();
+
+  if (!state.steps.length || !activeStep) {
     currentStepEl.textContent = 'No session started yet.';
     timeDisplayEl.textContent = '00:00';
     return;
   }
 
-  const currentStep = state.steps[state.activeIndex];
-  currentStepEl.textContent = `${currentStep.type === 'task' ? 'Focus' : 'Recharge'} • ${currentStep.label}`;
+  currentStepEl.textContent = `${activeStep.type === 'task' ? 'Focus' : 'Recharge'} • ${activeStep.label}`;
   timeDisplayEl.textContent = formatTime(state.remainingSeconds || getCurrentBlockSeconds());
 }
 
@@ -281,6 +328,15 @@ window.electronAPI.onTimerAction((action) => {
 startSessionBtn.addEventListener('click', startSession);
 pauseBtn.addEventListener('click', togglePause);
 resetBtn.addEventListener('click', resetSession);
+skipBtn.addEventListener('click', () => {
+  if (!state.steps.length || !state.activeId) {
+    return;
+  }
+
+  markCurrentFinished();
+  advanceToNextBlock(false);
+  renderQueue();
+});
 
 renderQueue();
 updateTimerView();
