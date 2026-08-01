@@ -181,8 +181,7 @@ button:hover {
 .queue-card {
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 260px);
-  min-height: 160px;
+  height: 300px;
   overflow: hidden;
 }
 
@@ -196,7 +195,8 @@ button:hover {
 }
 
 .queue-list {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
   flex: 1 1 auto;
   min-height: 0;
@@ -229,6 +229,13 @@ button:hover {
   opacity: 0.72;
   cursor: pointer;
   border-style: dashed;
+}
+
+.queue-item.sticky-add-block {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  margin-top: auto;
 }
 
 .queue-item.add-block-placeholder:hover {

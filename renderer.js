@@ -117,7 +117,7 @@ function renderQueue() {
   }
 
   const addBlockItem = document.createElement('article');
-  addBlockItem.className = 'queue-item add-block-placeholder';
+  addBlockItem.className = 'queue-item add-block-placeholder sticky-add-block';
   addBlockItem.innerHTML = `
     <div class="queue-badge">Add</div>
     <div>

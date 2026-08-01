@@ -9,9 +9,11 @@ let settingsWindow;
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 380,
-    height: 600,
+    height: 700,
     minWidth: 380,
-    minHeight: 600,
+    minHeight: 700,
+    maxHeight: 700,
+    resizable: false,
     title: 'Pomomo',
     frame: false,
     backgroundColor: '#FCF8F8',
