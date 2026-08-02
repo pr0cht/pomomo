@@ -202,6 +202,7 @@ button:hover {
   min-height: 0;
   overflow-y: auto;
   scrollbar-width: none;
+  scroll-behavior: smooth;
 }
 
 .queue-list::-webkit-scrollbar {
@@ -224,31 +225,33 @@ button:hover {
   background: #FBEFEF;
 }
 
-.queue-item.add-block-placeholder {
-  background: rgba(245, 175, 175, 0.12);
-  opacity: 0.72;
-  cursor: pointer;
-  border-style: dashed;
+.add-block-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #ffffff;
+  border: 1px solid #f9dfdf;
+  border-radius: 18px;
+  padding: 18px;
 }
 
-.queue-item.sticky-add-block {
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
-  margin-top: auto;
+.add-block-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.queue-item.add-block-placeholder:hover {
-  opacity: 1;
+.add-block-card h2 {
+  margin: 0 0 4px;
+  font-size: 1rem;
 }
 
-.queue-item.add-block-placeholder .queue-badge {
-  background: #fff5f5;
-  color: #7a5b5b;
-}
-
-.queue-item.add-block-placeholder .queue-order {
-  color: #7a5b5b;
+.add-block-card p {
+  margin: 0;
+  color: #6f5b5b;
 }
 
 .queue-item.break {
@@ -462,8 +465,14 @@ button:hover {
 }
 
 .window-control-btn img {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
+  transition: transform 180ms ease, filter 180ms ease;
+}
+
+#pin-btn.active img {
+  filter: brightness(0.75);
+  transform: scale(0.9);
 }
 
 .window-header {

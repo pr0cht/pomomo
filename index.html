@@ -14,12 +14,18 @@
       <div class="window-header app-titlebar">
         <div class="window-title">Pomomo</div>
         <div class="window-controls">
-          <button id="minimize-btn" class="window-control-btn" aria-label="Minimize window">_</button>
-          <button id="pin-btn" class="window-control-btn" aria-label="Pin window">📌</button>
-          <button id="settings-btn" class="window-control-btn" aria-label="Open settings">⚙</button>
-          <button id="close-window-btn" class="window-control-btn" aria-label="Close window">
-            <img src="assets/icons/close.png" alt="Close" />
-          </button>
+          <button id="minimize-btn" class="window-control-btn" aria-label="Minimize window">
+          <img src="assets/icons/minimize.png" alt="Minimize" />
+        </button>
+        <button id="pin-btn" class="window-control-btn" aria-label="Pin window">
+          <img src="assets/icons/pin.png" alt="Pin" />
+        </button>
+        <button id="settings-btn" class="window-control-btn" aria-label="Open settings">
+          <img src="assets/icons/settings.png" alt="Settings" />
+        </button>
+        <button id="close-window-btn" class="window-control-btn" aria-label="Close window">
+          <img src="assets/icons/close.png" alt="Close" />
+        </button>
         </div>
       </div>
 
@@ -47,6 +53,16 @@
           <button id="toggle-queue-btn" class="secondary-button">Hide queue</button>
         </div>
         <div id="queue" class="queue-list"></div>
+      </section>
+
+      <section class="add-block-card">
+        <div class="add-block-content">
+          <div>
+            <h2>Add time block</h2>
+            <p>Click to create a new task or break</p>
+          </div>
+          <button id="open-add-block-btn" class="secondary-button">Add block</button>
+        </div>
       </section>
     </div>
 

@@ -11,6 +11,40 @@ const settingsBtn = document.getElementById('settings-btn');
 const closeWindowBtn = document.getElementById('close-window-btn');
 const toggleQueueBtn = document.getElementById('toggle-queue-btn');
 
+let queueTargetScroll = queueEl.scrollTop;
+let queueScrollVelocity = 0;
+let queueScrollAnimationId = null;
+
+function animateQueueScroll() {
+  queueScrollVelocity *= 0.84;
+  queueEl.scrollTop = Math.max(
+    0,
+    Math.min(queueEl.scrollHeight - queueEl.clientHeight, queueEl.scrollTop + queueScrollVelocity)
+  );
+
+  if (Math.abs(queueScrollVelocity) > 0.5) {
+    queueScrollAnimationId = requestAnimationFrame(animateQueueScroll);
+  } else {
+    queueScrollAnimationId = null;
+    queueScrollVelocity = 0;
+  }
+}
+
+queueEl.addEventListener('wheel', (event) => {
+  if (event.ctrlKey || event.shiftKey) {
+    return;
+  }
+
+  event.preventDefault();
+  queueScrollVelocity += event.deltaY * 0.35;
+  queueScrollVelocity = Math.max(-120, Math.min(120, queueScrollVelocity));
+
+  if (!queueScrollAnimationId) {
+    queueScrollAnimationId = requestAnimationFrame(animateQueueScroll);
+  }
+}, { passive: false });
+const openAddBlockBtn = document.getElementById('open-add-block-btn');
+
 const state = {
   steps: [],
   activeId: null,
@@ -116,21 +150,6 @@ function renderQueue() {
     });
   }
 
-  const addBlockItem = document.createElement('article');
-  addBlockItem.className = 'queue-item add-block-placeholder sticky-add-block';
-  addBlockItem.innerHTML = `
-    <div class="queue-badge">Add</div>
-    <div>
-      <strong>Add time block</strong>
-      <p>Click to create a new task or break</p>
-    </div>
-    <span class="queue-order">+</span>
-  `;
-  addBlockItem.addEventListener('click', () => {
-    window.electronAPI.openAddBlockWindow();
-  });
-
-  queueEl.appendChild(addBlockItem);
 }
 
 function reorderSteps(draggedId, targetId) {
@@ -328,6 +347,9 @@ window.electronAPI.onTimerAction((action) => {
 startSessionBtn.addEventListener('click', startSession);
 pauseBtn.addEventListener('click', togglePause);
 resetBtn.addEventListener('click', resetSession);
+openAddBlockBtn.addEventListener('click', () => {
+  window.electronAPI.openAddBlockWindow();
+});
 skipBtn.addEventListener('click', () => {
   if (!state.steps.length || !state.activeId) {
     return;
