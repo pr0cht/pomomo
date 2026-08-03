@@ -11,6 +11,13 @@ const settingsBtn = document.getElementById('settings-btn');
 const closeWindowBtn = document.getElementById('close-window-btn');
 const toggleQueueBtn = document.getElementById('toggle-queue-btn');
 
+const finishSound = new Audio('assets/audio/finish.mp3');
+
+function playFinishSound() {
+  finishSound.currentTime = 0;
+  finishSound.play().catch(() => {});
+}
+
 let queueTargetScroll = queueEl.scrollTop;
 let queueScrollVelocity = 0;
 let queueScrollAnimationId = null;
@@ -208,6 +215,7 @@ async function handleTimerExpired() {
   markCurrentFinished();
   const finishedStep = getActiveStep();
   if (finishedStep) {
+    playFinishSound();
     window.electronAPI.openTimerNotification({
       type: finishedStep.type,
       label: finishedStep.label,
