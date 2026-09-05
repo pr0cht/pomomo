@@ -13,5 +13,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openTimerNotification: (step) => ipcRenderer.send('open-timer-notification', step),
   onTimerAction: (callback) => ipcRenderer.on('timer-action', (_event, action) => callback(action)),
   submitTimerAction: (action) => ipcRenderer.send('timer-action', action),
+  showNativeNotification: (payload) => ipcRenderer.send('show-native-notification', payload),
   onNotificationData: (callback) => ipcRenderer.on('notification-data', (_event, data) => callback(data)),
 });

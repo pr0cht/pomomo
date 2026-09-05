@@ -10,11 +10,14 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body class="modal-body">
-    <div class="modal-card">
-      <div class="window-header">
-        <div class="window-title">Add block</div>
-        <button id="close-window-btn" class="window-close-btn">
-          <img src="assets/icons/close.png" alt="Close window" />
+    <div class="modal-card add-block-modal-window">
+      <div class="window-header modal-header">
+        <div class="window-title">Add time block</div>
+        <button id="close-window-btn" class="window-close-btn" title="Close window">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
         </button>
       </div>
 
@@ -22,30 +25,32 @@
         <label class="type-card">
           <input type="radio" name="block-type" value="task" checked />
           <div class="type-card-content">
-            <span>Task</span>
+            <span class="type-title">Task</span>
             <p>Focus on an active work item.</p>
           </div>
         </label>
         <label class="type-card">
           <input type="radio" name="block-type" value="break" />
           <div class="type-card-content">
-            <span>Break</span>
-            <p>Rest and recharge between work blocks.</p>
+            <span class="type-title">Break</span>
+            <p>Rest and recharge between sessions.</p>
           </div>
         </label>
       </div>
 
-      <label>
-        Name
-        <input id="block-name" placeholder="Enter a name" />
-      </label>
-      <label>
-        Minutes
-        <input id="block-minutes" type="number" min="1" value="25" />
-      </label>
+      <div class="form-group">
+        <label class="form-label" for="block-name">Block Name</label>
+        <input id="block-name" class="form-input" placeholder="e.g. Code Review, Reading, Stretch" autofocus />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="block-minutes">Duration (minutes)</label>
+        <input id="block-minutes" class="form-input" type="number" min="1" max="360" value="25" />
+      </div>
+
       <div class="modal-actions">
-        <button id="cancel-btn">Cancel</button>
-        <button id="save-block-btn">Save block</button>
+        <button id="cancel-btn" class="secondary-btn">Cancel</button>
+        <button id="save-block-btn" class="primary-btn">Save block</button>
       </div>
     </div>
 

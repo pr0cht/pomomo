@@ -11,59 +11,150 @@
   </head>
   <body>
     <div class="app-shell">
+      <!-- Titlebar Header -->
       <div class="window-header app-titlebar">
-        <div class="window-title">Pomomo</div>
+        <div class="window-title-group">
+          <img src="assets/icons/timer.png" alt="Logo" class="app-logo" />
+          <div class="window-title">Pomomo</div>
+        </div>
         <div class="window-controls">
-          <button id="minimize-btn" class="window-control-btn" aria-label="Minimize window">
-          <img src="assets/icons/minimize.png" alt="Minimize" />
-        </button>
-        <button id="pin-btn" class="window-control-btn" aria-label="Pin window">
-          <img src="assets/icons/pin.png" alt="Pin" />
-        </button>
-        <button id="settings-btn" class="window-control-btn" aria-label="Open settings">
-          <img src="assets/icons/settings.png" alt="Settings" />
-        </button>
-        <button id="close-window-btn" class="window-control-btn" aria-label="Close window">
-          <img src="assets/icons/close.png" alt="Close" />
-        </button>
+          <button id="minimize-btn" class="window-control-btn" aria-label="Minimize window" title="Minimize">
+            <img src="assets/icons/minimize.png" alt="Minimize" />
+          </button>
+          <button id="pin-btn" class="window-control-btn" aria-label="Pin window" title="Always on top">
+            <img src="assets/icons/pin.png" alt="Pin" />
+          </button>
+          <button id="settings-btn" class="window-control-btn" aria-label="Open settings" title="Settings">
+            <img src="assets/icons/settings.png" alt="Settings" />
+          </button>
+          <button id="close-window-btn" class="window-control-btn" aria-label="Close window" title="Close">
+            <img src="assets/icons/close.png" alt="Close" />
+          </button>
         </div>
       </div>
 
+      <!-- Main Timer Card -->
       <section class="timer-card">
         <div class="timer-header">
-          <img class="timer-icon" src="assets/icons/timer.png" alt="Timer icon" />
-          <h2>Current step</h2>
+          <div id="current-step" class="current-step">No session active</div>
         </div>
-        <div id="current-step" class="current-step">No session started yet.</div>
-        <div id="time-display" class="time-display">00:00</div>
+
+        <!-- Circular Dial Container -->
+        <div class="timer-dial-wrapper">
+          <svg class="progress-ring" width="168" height="168" viewBox="0 0 168 168">
+            <circle class="progress-ring-track" cx="84" cy="84" r="74" />
+            <circle id="progress-ring-bar" class="progress-ring-bar" cx="84" cy="84" r="74" />
+          </svg>
+          <div class="timer-dial-center">
+            <div id="time-display" class="time-display">00:00</div>
+            <div id="step-badge" class="step-badge">Ready</div>
+          </div>
+        </div>
+
         <div class="timer-summary">
           <span id="total-duration">Total: 0 min</span>
           <span id="end-time">Ends at --</span>
         </div>
+
         <div class="timer-actions">
-          <button id="start-session-btn">Start session</button>
-          <button id="pause-btn">Pause</button>
-          <button id="reset-btn">Reset</button>
-          <button id="skip-btn" class="secondary-button">Skip</button>
+          <button id="start-session-btn" class="primary-btn">Start</button>
+          <button id="pause-btn" class="secondary-btn">Pause</button>
+          <button id="skip-btn" class="secondary-btn">Skip</button>
+          <button id="reset-btn" class="ghost-btn" title="Reset current block">Reset</button>
+        </div>
+
+        <!-- Session Completed Overlay Banner -->
+        <div id="session-completed-banner" class="session-completed-banner hidden">
+          <div class="celebrate-badge">🎉 Session Complete!</div>
+          <p id="completed-stats-text" class="completed-stats-text">All blocks finished. Outstanding focus!</p>
+          <div class="completed-actions">
+            <button id="repeat-session-btn" class="secondary-btn">Restart</button>
+            <button id="dismiss-completed-btn" class="ghost-btn">Dismiss</button>
+          </div>
         </div>
       </section>
+
+      <!-- Queue Card -->
       <section class="queue-card">
         <div class="queue-header">
-          <h2>Session queue</h2>
-          <button id="toggle-queue-btn" class="secondary-button">Hide queue</button>
+          <div class="queue-title-group">
+            <h2>Session queue</h2>
+            <span id="queue-count-badge" class="queue-count-badge">0</span>
+          </div>
+          <div class="queue-header-actions">
+            <button id="presets-toggle-btn" class="pill-btn" title="Quick presets">+ Presets</button>
+            <button id="clear-queue-btn" class="pill-btn" title="Clear queue">Clear</button>
+            <button id="toggle-queue-btn" class="pill-btn">Hide</button>
+          </div>
         </div>
+
+        <!-- Presets Panel -->
+        <div id="presets-panel" class="presets-panel hidden">
+          <div class="presets-top-bar">
+            <button id="save-preset-btn" class="save-preset-btn" title="Save current session queue as a preset">
+              ★ Save Current Session as Preset
+            </button>
+          </div>
+
+          <!-- Inline Preset Naming Input -->
+          <div id="save-preset-form" class="save-preset-form hidden">
+            <input id="preset-name-input" type="text" placeholder="Preset name (e.g. Focus Sprint)" maxlength="32" />
+            <div class="preset-form-actions">
+              <button id="cancel-preset-save-btn" class="ghost-btn">Cancel</button>
+              <button id="confirm-preset-save-btn" class="primary-btn">Save</button>
+            </div>
+          </div>
+
+          <div class="presets-list-section">
+            <span class="presets-title">Saved Presets:</span>
+            <div id="presets-chips" class="presets-chips"></div>
+          </div>
+        </div>
+
         <div id="queue" class="queue-list"></div>
       </section>
 
+      <!-- Add Block Card -->
       <section class="add-block-card">
         <div class="add-block-content">
           <div>
             <h2>Add time block</h2>
-            <p>Click to create a new task or break</p>
+            <p>Custom task or break period</p>
           </div>
-          <button id="open-add-block-btn" class="secondary-button">Add block</button>
+          <button id="open-add-block-btn" class="primary-btn add-btn">+ Add block</button>
         </div>
       </section>
+
+      <!-- Keyboard Shortcuts Hint Footer -->
+      <footer class="shortcuts-hint">
+        <span><kbd>Space</kbd> Pause</span>
+        <span><kbd>S</kbd> Skip</span>
+        <span><kbd>R</kbd> Reset</span>
+      </footer>
+
+      <!-- Inline Edit Block Modal Backdrop -->
+      <div id="edit-block-modal" class="inline-modal-backdrop hidden">
+        <div class="inline-modal-card">
+          <div class="window-header modal-header">
+            <div class="window-title">Edit block</div>
+            <button id="close-edit-btn" class="window-close-btn" title="Close">&times;</button>
+          </div>
+          <div class="edit-modal-form">
+            <label>
+              Name
+              <input id="edit-block-name" type="text" placeholder="Block name" />
+            </label>
+            <label>
+              Duration (minutes)
+              <input id="edit-block-minutes" type="number" min="1" max="360" />
+            </label>
+            <div class="modal-actions">
+              <button id="cancel-edit-btn" class="secondary-btn">Cancel</button>
+              <button id="save-edit-btn" class="primary-btn">Save Changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="renderer.js"></script>

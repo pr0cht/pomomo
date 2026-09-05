@@ -28,3 +28,11 @@ cancelBtn.addEventListener('click', () => {
 closeBtn.addEventListener('click', () => {
   window.close();
 });
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    saveBtn.click();
+  } else if (e.key === 'Escape') {
+    window.close();
+  }
+});

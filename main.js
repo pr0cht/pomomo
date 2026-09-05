@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification } = require('electron');
 const path = require('path');
 
 let mainWindow;
@@ -38,8 +38,8 @@ function createAddBlockWindow() {
   }
 
   addBlockWindow = new BrowserWindow({
-    width: 520,
-    height: 440,
+    width: 460,
+    height: 420,
     resizable: false,
     frame: false,
     title: 'Add block',
@@ -135,8 +135,21 @@ ipcMain.on('timer-action', (_event, action) => {
   }
 });
 
+ipcMain.on('show-native-notification', (_event, payload) => {
+  if (Notification.isSupported()) {
+    new Notification({
+      title: payload.title || 'Pomomo',
+      body: payload.body || '',
+      icon: path.join(__dirname, 'assets', 'icons', 'timer.png'),
+    }).show();
+  }
+});
+
 const settings = {
   autoStartTask: false,
+  soundEnabled: true,
+  volume: 80,
+  nativeNotification: true,
 };
 
 function createSettingsWindow() {
@@ -146,10 +159,10 @@ function createSettingsWindow() {
   }
 
   settingsWindow = new BrowserWindow({
-    width: 340,
-    height: 280,
+    width: 360,
+    height: 420,
     minWidth: 340,
-    minHeight: 260,
+    minHeight: 380,
     resizable: false,
     frame: false,
     title: 'Settings',

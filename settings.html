@@ -19,9 +19,35 @@
       </div>
 
       <label class="settings-option">
-        <div class="settings-option-title">Auto-Start Task</div>
+        <div class="settings-option-header">
+          <div class="settings-option-title">Auto-Start Task</div>
+          <input id="auto-start-task" type="checkbox" />
+        </div>
         <div class="settings-option-description">Automatically start the next block when the current one finishes.</div>
-        <input id="auto-start-task" type="checkbox" />
+      </label>
+
+      <label class="settings-option">
+        <div class="settings-option-header">
+          <div class="settings-option-title">Completion Sound</div>
+          <input id="sound-enabled" type="checkbox" />
+        </div>
+        <div class="settings-option-description">Play audio chime when a task or break completes.</div>
+      </label>
+
+      <div class="settings-option">
+        <div class="settings-option-header">
+          <div class="settings-option-title">Chime Volume</div>
+          <span id="volume-val" class="settings-badge">80%</span>
+        </div>
+        <input id="sound-volume" type="range" min="0" max="100" value="80" class="settings-range" />
+      </div>
+
+      <label class="settings-option">
+        <div class="settings-option-header">
+          <div class="settings-option-title">Desktop Notifications</div>
+          <input id="native-notification" type="checkbox" />
+        </div>
+        <div class="settings-option-description">Show system desktop notifications when intervals finish.</div>
       </label>
     </div>
 
