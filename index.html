@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
+    <script src="theme.js"></script>
   </head>
   <body>
     <div class="app-shell">
@@ -57,8 +58,7 @@
         </div>
 
         <div class="timer-actions">
-          <button id="start-session-btn" class="primary-btn">Start</button>
-          <button id="pause-btn" class="secondary-btn">Pause</button>
+          <button id="play-pause-btn" class="primary-btn">Start</button>
           <button id="skip-btn" class="secondary-btn">Skip</button>
           <button id="reset-btn" class="ghost-btn" title="Reset current block">Reset</button>
         </div>
@@ -127,7 +127,7 @@
 
       <!-- Keyboard Shortcuts Hint Footer -->
       <footer class="shortcuts-hint">
-        <span><kbd>Space</kbd> Pause</span>
+        <span><kbd>Space</kbd> Start / Pause</span>
         <span><kbd>S</kbd> Skip</span>
         <span><kbd>R</kbd> Reset</span>
       </footer>

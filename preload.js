@@ -15,4 +15,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   submitTimerAction: (action) => ipcRenderer.send('timer-action', action),
   showNativeNotification: (payload) => ipcRenderer.send('show-native-notification', payload),
   onNotificationData: (callback) => ipcRenderer.on('notification-data', (_event, data) => callback(data)),
+  onSettingUpdated: (callback) => ipcRenderer.on('setting-updated', (_event, key, value) => callback(key, value)),
 });

@@ -9,8 +9,7 @@ const totalDurationEl = document.getElementById('total-duration');
 const endTimeEl = document.getElementById('end-time');
 
 // Buttons
-const startSessionBtn = document.getElementById('start-session-btn');
-const pauseBtn = document.getElementById('pause-btn');
+const playPauseBtn = document.getElementById('play-pause-btn');
 const resetBtn = document.getElementById('reset-btn');
 const skipBtn = document.getElementById('skip-btn');
 const minimizeBtn = document.getElementById('minimize-btn');
@@ -46,8 +45,15 @@ const closeEditBtn = document.getElementById('close-edit-btn');
 // Constants
 const STORAGE_KEY = 'pomomo_state_v1';
 const PRESETS_STORAGE_KEY = 'pomomo_custom_presets_v1';
+const THEME_CACHE_KEY = 'pomomo_theme_cache_v1';
 const CIRCUMFERENCE = 465; // 2 * PI * 74 approx
 const finishSound = new Audio('assets/audio/finish.mp3');
+
+function applyTheme(theme) {
+  if (window.applyTheme) {
+    window.applyTheme(theme);
+  }
+}
 
 // Application State
 const state = {
@@ -419,11 +425,25 @@ cancelEditBtn.addEventListener('click', closeEditModal);
 closeEditBtn.addEventListener('click', closeEditModal);
 
 // Timer & Countdown Management (Drift-Free Timestamps)
+function updatePlayPauseButton() {
+  if (!playPauseBtn) return;
+  if (state.timerId && !state.isPaused) {
+    playPauseBtn.textContent = 'Pause';
+    playPauseBtn.classList.add('pause-mode');
+  } else if (state.isPaused && state.activeId && state.remainingSeconds > 0) {
+    playPauseBtn.textContent = 'Resume';
+    playPauseBtn.classList.remove('pause-mode');
+  } else {
+    playPauseBtn.textContent = 'Start';
+    playPauseBtn.classList.remove('pause-mode');
+  }
+}
+
 function startTimer() {
   clearInterval(state.timerId);
   state.isPaused = false;
   state.targetEndTime = Date.now() + state.remainingSeconds * 1000;
-  pauseBtn.textContent = 'Pause';
+  updatePlayPauseButton();
 
   state.timerId = setInterval(() => {
     if (state.isPaused) {
@@ -443,6 +463,36 @@ function startTimer() {
   }, 250);
 }
 
+function togglePlayPause() {
+  if (!state.steps.length) {
+    return;
+  }
+
+  if (state.timerId && !state.isPaused) {
+    // Currently running -> pause
+    clearInterval(state.timerId);
+    state.timerId = null;
+    state.isPaused = true;
+    updatePlayPauseButton();
+    saveState();
+  } else {
+    // Currently paused or stopped -> start / resume
+    sessionCompletedBanner.classList.add('hidden');
+    if (!state.activeId) {
+      state.activeId = state.steps[0].id;
+      state.remainingSeconds = state.steps[0].duration * 60;
+    } else if (state.remainingSeconds <= 0) {
+      const activeStep = getActiveStep() || state.steps[0];
+      state.remainingSeconds = activeStep.duration * 60;
+    }
+    state.isPaused = false;
+    startTimer();
+    updatePlayPauseButton();
+    renderQueue();
+    saveState();
+  }
+}
+
 function startSession() {
   if (!state.steps.length) {
     return;
@@ -457,6 +507,7 @@ function startSession() {
   updateTimerView();
   renderQueue();
   startTimer();
+  updatePlayPauseButton();
   saveState();
 }
 
@@ -505,8 +556,8 @@ async function handleTimerExpired() {
 
 function handleSessionCompleted() {
   state.timerId = null;
-  state.isPaused = true;
-  pauseBtn.textContent = 'Resume';
+  state.isPaused = false;
+  updatePlayPauseButton();
   
   // Calculate total focus time achieved
   const focusMinutes = state.steps
@@ -531,10 +582,10 @@ function advanceToNextBlock(startPaused = false) {
   state.activeId = state.steps[nextIndex].id;
   state.remainingSeconds = state.steps[nextIndex].duration * 60;
   state.isPaused = startPaused;
-  pauseBtn.textContent = state.isPaused ? 'Resume' : 'Pause';
 
   updateTimerView();
   renderQueue();
+  updatePlayPauseButton();
   saveState();
 
   if (!state.isPaused) {
@@ -542,36 +593,10 @@ function advanceToNextBlock(startPaused = false) {
   }
 }
 
-function togglePause() {
-  if (!state.steps.length) {
-    return;
-  }
-
-  if (state.timerId) {
-    // Currently running -> pause
-    clearInterval(state.timerId);
-    state.timerId = null;
-    state.isPaused = true;
-    pauseBtn.textContent = 'Resume';
-    saveState();
-  } else {
-    // Currently paused -> resume
-    if (state.remainingSeconds <= 0) {
-      const activeStep = getActiveStep();
-      if (activeStep) {
-        state.remainingSeconds = activeStep.duration * 60;
-      }
-    }
-    startTimer();
-    saveState();
-  }
-}
-
 function resetSession() {
   clearInterval(state.timerId);
   state.timerId = null;
-  state.isPaused = true;
-  pauseBtn.textContent = 'Pause';
+  state.isPaused = false;
   sessionCompletedBanner.classList.add('hidden');
 
   const activeStep = getActiveStep();
@@ -587,6 +612,7 @@ function resetSession() {
 
   updateTimerView();
   renderQueue();
+  updatePlayPauseButton();
   saveState();
 }
 
@@ -704,8 +730,7 @@ function deletePreset(presetId) {
 }
 
 // Event Listeners for UI Actions
-startSessionBtn.addEventListener('click', startSession);
-pauseBtn.addEventListener('click', togglePause);
+playPauseBtn.addEventListener('click', togglePlayPause);
 resetBtn.addEventListener('click', resetSession);
 
 skipBtn.addEventListener('click', () => {
@@ -837,6 +862,12 @@ window.electronAPI.onTimerAction((action) => {
   }
 });
 
+window.electronAPI.onSettingUpdated((key, value) => {
+  if (key === 'theme') {
+    applyTheme(value);
+  }
+});
+
 // Global Keyboard Shortcuts
 window.addEventListener('keydown', (e) => {
   // Ignore keystrokes when editing text inputs
@@ -849,7 +880,7 @@ window.addEventListener('keydown', (e) => {
 
   if (e.code === 'Space') {
     e.preventDefault();
-    togglePause();
+    togglePlayPause();
   } else if (e.code === 'KeyS') {
     e.preventDefault();
     if (state.steps.length && state.activeId) {
@@ -867,6 +898,19 @@ window.addEventListener('keydown', (e) => {
 });
 
 // Initialize on Load
+try {
+  const cachedTheme = localStorage.getItem(THEME_CACHE_KEY);
+  if (cachedTheme) {
+    applyTheme(JSON.parse(cachedTheme));
+  }
+} catch (e) {}
+
+window.electronAPI.getSettings().then((settings) => {
+  if (settings && settings.theme) {
+    applyTheme(settings.theme);
+  }
+});
+
 loadSavedState();
 renderQueue();
 updateTimerView();

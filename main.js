@@ -6,6 +6,26 @@ let addBlockWindow;
 let notificationWindow;
 let settingsWindow;
 
+const settings = {
+  autoStartTask: false,
+  soundEnabled: true,
+  volume: 80,
+  nativeNotification: true,
+  theme: {
+    name: 'Pastel Rose',
+    bgMain: '#FCF8F8',
+    cardBg: '#FFFFFF',
+    accentColor: '#E87A7A',
+    taskColor: '#FFF5F5',
+    breakColor: '#48A87C',
+    textColor: '#382A2A',
+  },
+};
+
+function getThemeBg() {
+  return (settings.theme && settings.theme.bgMain) ? settings.theme.bgMain : '#FCF8F8';
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 380,
@@ -16,7 +36,7 @@ function createWindow() {
     resizable: false,
     title: 'Pomomo',
     frame: false,
-    backgroundColor: '#FCF8F8',
+    backgroundColor: getThemeBg(),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -45,7 +65,7 @@ function createAddBlockWindow() {
     title: 'Add block',
     parent: mainWindow,
     modal: true,
-    backgroundColor: '#FCF8F8',
+    backgroundColor: getThemeBg(),
     icon: path.join(__dirname, 'assets', 'icons', 'add.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -72,7 +92,7 @@ function createNotificationWindow(finishedStep) {
     parent: mainWindow,
     modal: true,
     alwaysOnTop: true,
-    backgroundColor: '#FCF8F8',
+    backgroundColor: getThemeBg(),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -109,6 +129,20 @@ ipcMain.on('pin-window', () => {
 
 ipcMain.on('update-setting', (_event, key, value) => {
   settings[key] = value;
+  if (key === 'theme' && value && value.bgMain) {
+    BrowserWindow.getAllWindows().forEach((win) => {
+      if (!win.isDestroyed()) {
+        try {
+          win.setBackgroundColor(value.bgMain);
+        } catch (e) {}
+      }
+    });
+  }
+  BrowserWindow.getAllWindows().forEach((win) => {
+    if (!win.isDestroyed()) {
+      win.webContents.send('setting-updated', key, value);
+    }
+  });
 });
 
 ipcMain.handle('get-settings', () => {
@@ -145,13 +179,6 @@ ipcMain.on('show-native-notification', (_event, payload) => {
   }
 });
 
-const settings = {
-  autoStartTask: false,
-  soundEnabled: true,
-  volume: 80,
-  nativeNotification: true,
-};
-
 function createSettingsWindow() {
   if (settingsWindow && !settingsWindow.isDestroyed()) {
     settingsWindow.focus();
@@ -159,16 +186,16 @@ function createSettingsWindow() {
   }
 
   settingsWindow = new BrowserWindow({
-    width: 360,
-    height: 420,
-    minWidth: 340,
-    minHeight: 380,
+    width: 400,
+    height: 580,
+    minWidth: 360,
+    minHeight: 480,
     resizable: false,
     frame: false,
     title: 'Settings',
     parent: mainWindow,
     modal: true,
-    backgroundColor: '#FCF8F8',
+    backgroundColor: getThemeBg(),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

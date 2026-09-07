@@ -8,47 +8,125 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
+    <script src="theme.js"></script>
   </head>
-  <body class="modal-body">
+  <body class="modal-body settings-body">
     <div class="modal-card settings-card-window">
       <div class="window-header settings-window-header">
         <div class="window-title">Settings</div>
-        <button id="close-window-btn" class="window-close-btn settings-close-btn">
-          <img src="assets/icons/close.png" alt="Close window" />
+        <button id="close-window-btn" class="window-close-btn settings-close-btn" title="Close settings">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
         </button>
       </div>
 
-      <label class="settings-option">
-        <div class="settings-option-header">
-          <div class="settings-option-title">Auto-Start Task</div>
-          <input id="auto-start-task" type="checkbox" />
-        </div>
-        <div class="settings-option-description">Automatically start the next block when the current one finishes.</div>
-      </label>
+      <div class="settings-scroll-content">
+        <!-- Section: Session & Audio -->
+        <div class="settings-section-title">General</div>
 
-      <label class="settings-option">
-        <div class="settings-option-header">
-          <div class="settings-option-title">Completion Sound</div>
-          <input id="sound-enabled" type="checkbox" />
-        </div>
-        <div class="settings-option-description">Play audio chime when a task or break completes.</div>
-      </label>
+        <label class="settings-option">
+          <div class="settings-option-header">
+            <div class="settings-option-title">Auto-Start Task</div>
+            <input id="auto-start-task" type="checkbox" />
+          </div>
+          <div class="settings-option-description">Automatically start next block when the current one finishes.</div>
+        </label>
 
-      <div class="settings-option">
-        <div class="settings-option-header">
-          <div class="settings-option-title">Chime Volume</div>
-          <span id="volume-val" class="settings-badge">80%</span>
+        <label class="settings-option">
+          <div class="settings-option-header">
+            <div class="settings-option-title">Completion Sound</div>
+            <input id="sound-enabled" type="checkbox" />
+          </div>
+          <div class="settings-option-description">Play audio chime when a task or break completes.</div>
+        </label>
+
+        <div class="settings-option">
+          <div class="settings-option-header">
+            <div class="settings-option-title">Chime Volume</div>
+            <span id="volume-val" class="settings-badge">80%</span>
+          </div>
+          <input id="sound-volume" type="range" min="0" max="100" value="80" class="settings-range" />
         </div>
-        <input id="sound-volume" type="range" min="0" max="100" value="80" class="settings-range" />
+
+        <label class="settings-option">
+          <div class="settings-option-header">
+            <div class="settings-option-title">Desktop Notifications</div>
+            <input id="native-notification" type="checkbox" />
+          </div>
+          <div class="settings-option-description">Show system notifications when intervals finish.</div>
+        </label>
+
+        <!-- Section: Color Scheme Customization -->
+        <div class="settings-section-divider"></div>
+        <div class="settings-section-header">
+          <div class="settings-section-title">Color Scheme</div>
+          <button id="reset-theme-btn" class="pill-btn" title="Reset to default theme">Reset</button>
+        </div>
+
+        <!-- Presets Row -->
+        <div class="theme-presets-row">
+          <button class="theme-preset-chip" data-theme="rose">
+            <span class="theme-preview-dot" style="background: #E87A7A;"></span> Rose
+          </button>
+          <button class="theme-preset-chip" data-theme="lavender">
+            <span class="theme-preview-dot" style="background: #8474E8;"></span> Lavender
+          </button>
+          <button class="theme-preset-chip" data-theme="matcha">
+            <span class="theme-preview-dot" style="background: #4CA47A;"></span> Matcha
+          </button>
+          <button class="theme-preset-chip" data-theme="sunset">
+            <span class="theme-preview-dot" style="background: #E2764B;"></span> Sunset
+          </button>
+          <button class="theme-preset-chip" data-theme="midnight">
+            <span class="theme-preview-dot" style="background: #B085F5;"></span> Midnight
+          </button>
+        </div>
+
+        <!-- Custom Color Pickers -->
+        <div class="custom-colors-grid">
+          <label class="color-picker-item">
+            <div class="color-picker-label">Background</div>
+            <div class="color-picker-wrap">
+              <input type="color" id="theme-bg" class="color-swatch-input" />
+              <span id="theme-bg-val" class="color-hex-label">#FCF8F8</span>
+            </div>
+          </label>
+
+          <label class="color-picker-item">
+            <div class="color-picker-label">Card Surface</div>
+            <div class="color-picker-wrap">
+              <input type="color" id="theme-card" class="color-swatch-input" />
+              <span id="theme-card-val" class="color-hex-label">#FFFFFF</span>
+            </div>
+          </label>
+
+          <label class="color-picker-item">
+            <div class="color-picker-label">Accent / Dial</div>
+            <div class="color-picker-wrap">
+              <input type="color" id="theme-accent" class="color-swatch-input" />
+              <span id="theme-accent-val" class="color-hex-label">#E87A7A</span>
+            </div>
+          </label>
+
+          <label class="color-picker-item">
+            <div class="color-picker-label">Time Block</div>
+            <div class="color-picker-wrap">
+              <input type="color" id="theme-task" class="color-swatch-input" />
+              <span id="theme-task-val" class="color-hex-label">#FFF5F5</span>
+            </div>
+          </label>
+
+          <label class="color-picker-item">
+            <div class="color-picker-label">Break Block</div>
+            <div class="color-picker-wrap">
+              <input type="color" id="theme-break" class="color-swatch-input" />
+              <span id="theme-break-val" class="color-hex-label">#48A87C</span>
+            </div>
+          </label>
+        </div>
       </div>
-
-      <label class="settings-option">
-        <div class="settings-option-header">
-          <div class="settings-option-title">Desktop Notifications</div>
-          <input id="native-notification" type="checkbox" />
-        </div>
-        <div class="settings-option-description">Show system desktop notifications when intervals finish.</div>
-      </label>
     </div>
 
     <script src="settings.js"></script>
