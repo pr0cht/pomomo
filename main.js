@@ -1,12 +1,13 @@
 const { app, BrowserWindow, ipcMain, Notification } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 let mainWindow;
 let addBlockWindow;
 let notificationWindow;
 let settingsWindow;
 
-const settings = {
+const DEFAULT_SETTINGS = {
   autoStartTask: false,
   soundEnabled: true,
   volume: 80,
@@ -22,6 +23,67 @@ const settings = {
   },
 };
 
+function getSettingsFilePath() {
+  try {
+    const userPath = app.getPath('userData');
+    return path.join(userPath, 'settings.json');
+  } catch (e) {
+    return path.join(__dirname, 'settings.json');
+  }
+}
+
+function loadSettings() {
+  try {
+    const filePath = getSettingsFilePath();
+    if (fs.existsSync(filePath)) {
+      const raw = fs.readFileSync(filePath, 'utf8');
+      const parsed = JSON.parse(raw);
+      const merged = { ...DEFAULT_SETTINGS, ...parsed };
+      if (parsed.theme) {
+        merged.theme = { ...DEFAULT_SETTINGS.theme, ...parsed.theme };
+      }
+      return merged;
+    }
+  } catch (e) {
+    console.error('Error loading settings.json:', e);
+  }
+  return { ...DEFAULT_SETTINGS };
+}
+
+let settings = loadSettings();
+saveSettings();
+
+function saveSettings() {
+  try {
+    const filePath = getSettingsFilePath();
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(filePath, JSON.stringify(settings, null, 2), 'utf8');
+  } catch (e) {
+    console.error('Error saving settings.json:', e);
+  }
+}
+
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.pomomo.app');
+}
+
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+}
+
+const APP_ICON_PATH = path.join(__dirname, 'assets', 'icons', process.platform === 'win32' ? 'icon.ico' : 'icon.png');
+
 function getThemeBg() {
   return (settings.theme && settings.theme.bgMain) ? settings.theme.bgMain : '#FCF8F8';
 }
@@ -36,12 +98,17 @@ function createWindow() {
     resizable: false,
     title: 'Pomomo',
     frame: false,
+    icon: APP_ICON_PATH,
     backgroundColor: getThemeBg(),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
+  });
+
+  mainWindow.webContents.on('will-navigate', (event) => {
+    event.preventDefault();
   });
 
   mainWindow.loadFile('index.html');
@@ -66,7 +133,7 @@ function createAddBlockWindow() {
     parent: mainWindow,
     modal: true,
     backgroundColor: getThemeBg(),
-    icon: path.join(__dirname, 'assets', 'icons', 'add.png'),
+    icon: APP_ICON_PATH,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -92,6 +159,7 @@ function createNotificationWindow(finishedStep) {
     parent: mainWindow,
     modal: true,
     alwaysOnTop: true,
+    icon: APP_ICON_PATH,
     backgroundColor: getThemeBg(),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -129,6 +197,7 @@ ipcMain.on('pin-window', () => {
 
 ipcMain.on('update-setting', (_event, key, value) => {
   settings[key] = value;
+  saveSettings();
   if (key === 'theme' && value && value.bgMain) {
     BrowserWindow.getAllWindows().forEach((win) => {
       if (!win.isDestroyed()) {
@@ -195,6 +264,7 @@ function createSettingsWindow() {
     title: 'Settings',
     parent: mainWindow,
     modal: true,
+    icon: APP_ICON_PATH,
     backgroundColor: getThemeBg(),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

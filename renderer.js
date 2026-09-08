@@ -45,7 +45,6 @@ const closeEditBtn = document.getElementById('close-edit-btn');
 // Constants
 const STORAGE_KEY = 'pomomo_state_v1';
 const PRESETS_STORAGE_KEY = 'pomomo_custom_presets_v1';
-const THEME_CACHE_KEY = 'pomomo_theme_cache_v1';
 const CIRCUMFERENCE = 465; // 2 * PI * 74 approx
 const finishSound = new Audio('assets/audio/finish.mp3');
 
@@ -465,6 +464,7 @@ function startTimer() {
 
 function togglePlayPause() {
   if (!state.steps.length) {
+    window.electronAPI.openAddBlockWindow();
     return;
   }
 
@@ -764,7 +764,10 @@ presetsToggleBtn.addEventListener('click', () => {
 });
 
 savePresetBtn.addEventListener('click', () => {
-  if (!state.steps.length) return;
+  if (!state.steps.length) {
+    alert('Please add at least one block to the session queue before saving as a preset.');
+    return;
+  }
   savePresetForm.classList.remove('hidden');
   presetNameInput.value = `Session (${state.steps.length} blocks)`;
   presetNameInput.focus();
@@ -898,19 +901,6 @@ window.addEventListener('keydown', (e) => {
 });
 
 // Initialize on Load
-try {
-  const cachedTheme = localStorage.getItem(THEME_CACHE_KEY);
-  if (cachedTheme) {
-    applyTheme(JSON.parse(cachedTheme));
-  }
-} catch (e) {}
-
-window.electronAPI.getSettings().then((settings) => {
-  if (settings && settings.theme) {
-    applyTheme(settings.theme);
-  }
-});
-
 loadSavedState();
 renderQueue();
 updateTimerView();
