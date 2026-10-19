@@ -395,7 +395,27 @@ select {
 .completed-actions {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.support-pill-btn {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.support-pill-btn:hover {
+  border-color: var(--primary-accent);
+  color: var(--primary-accent);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Queue Card */
@@ -803,13 +823,18 @@ select {
 /* Shortcuts Hint Footer */
 .shortcuts-hint {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 12px;
   font-size: 0.72rem;
   color: var(--text-secondary);
-  padding: 2px 0;
+  padding: 2px 2px;
   flex-shrink: 0;
+}
+
+.shortcuts-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .shortcuts-hint kbd {
@@ -821,6 +846,27 @@ select {
   font-family: monospace;
   font-size: 0.75rem;
   color: var(--text-primary);
+}
+
+.footer-support-btn {
+  border: 1px solid var(--border-color);
+  background: var(--secondary-bg);
+  color: var(--text-primary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.footer-support-btn:hover {
+  background: var(--secondary-hover);
+  border-color: var(--primary-accent);
+  transform: translateY(-1px);
 }
 
 /* Inline Edit Modal Backdrop */
@@ -1342,4 +1388,81 @@ select {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Support the Maker Card in Settings */
+.support-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--shadow-sm);
+  margin-top: 4px;
+  margin-bottom: 6px;
+}
+
+.support-card-desc {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+.support-links-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.support-action-btn {
+  flex: 1;
+  min-width: 80px;
+  border: 1px solid var(--border-color);
+  background: var(--secondary-bg);
+  color: var(--text-primary);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+
+.support-action-btn:hover {
+  border-color: var(--primary-accent);
+  background: var(--secondary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.support-action-btn.kofi-btn:hover {
+  border-color: #E28E4A;
+}
+
+.support-action-btn.patreon-btn:hover {
+  border-color: #E87A7A;
+}
+
+.support-action-btn.website-btn:hover {
+  border-color: #8474E8;
+}
+
+.support-btn-icon {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.support-card-footer {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  opacity: 0.8;
+  padding-top: 2px;
 }

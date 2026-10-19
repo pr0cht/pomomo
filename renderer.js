@@ -57,6 +57,7 @@ function applyTheme(theme) {
 // Application State
 const state = {
   steps: [],
+  presets: [],
   activeId: null,
   timerId: null,
   isPaused: false,
@@ -82,7 +83,17 @@ async function playFinishSound() {
   }
 }
 
-// Local Storage Persistence
+// Atomic Disk Persistence & State Engine
+let diskSaveTimer = null;
+function debouncedDiskSave(data) {
+  clearTimeout(diskSaveTimer);
+  diskSaveTimer = setTimeout(() => {
+    if (window.electronAPI && window.electronAPI.saveQueueState) {
+      window.electronAPI.saveQueueState(data);
+    }
+  }, 120);
+}
+
 function saveState() {
   try {
     const dataToSave = {
@@ -92,16 +103,34 @@ function saveState() {
       remainingSeconds: state.remainingSeconds,
       isPaused: state.isPaused,
     };
+    debouncedDiskSave(dataToSave);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
   } catch (e) {
-    console.error('Failed to save state to localStorage', e);
+    console.error('Failed to save state', e);
   }
 }
 
-function loadSavedState() {
+async function loadSavedState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
+    let parsed = null;
+    if (window.electronAPI && window.electronAPI.getQueueState) {
+      parsed = await window.electronAPI.getQueueState();
+    }
+
+    // Zero-data-loss migration from legacy localStorage if disk state is missing
+    if (!parsed) {
+      const legacyRaw = localStorage.getItem(STORAGE_KEY);
+      if (legacyRaw) {
+        try {
+          parsed = JSON.parse(legacyRaw);
+          if (parsed && window.electronAPI && window.electronAPI.saveQueueState) {
+            window.electronAPI.saveQueueState(parsed);
+          }
+        } catch (_) {}
+      }
+    }
+
+    if (!parsed) {
       state.steps = [];
       state.activeId = null;
       state.remainingSeconds = 0;
@@ -111,7 +140,6 @@ function loadSavedState() {
       return;
     }
 
-    const parsed = JSON.parse(raw);
     const isOldSample = Array.isArray(parsed.steps) &&
       parsed.steps.length === 3 &&
       parsed.steps[0]?.label === 'Deep Focus Sprint';
@@ -125,6 +153,7 @@ function loadSavedState() {
       saveState();
       return;
     }
+
     state.steps = Array.isArray(parsed.steps) ? parsed.steps : [];
     state.activeId = parsed.activeId || (state.steps[0] ? state.steps[0].id : null);
     state.finishedIds = new Set(Array.isArray(parsed.finishedIds) ? parsed.finishedIds : []);
@@ -140,7 +169,7 @@ function loadSavedState() {
     }
     state.isPaused = true;
   } catch (e) {
-    console.error('Failed to load state from localStorage', e);
+    console.error('Failed to load state', e);
     state.steps = [];
   }
 }
@@ -650,19 +679,45 @@ function updateTimerView() {
 
 // Custom User Presets
 function getCustomPresets() {
-  try {
-    const raw = localStorage.getItem(PRESETS_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    return [];
-  }
+  return state.presets;
 }
 
 function saveCustomPresets(presets) {
   try {
+    state.presets = presets;
+    if (window.electronAPI && window.electronAPI.savePresets) {
+      window.electronAPI.savePresets(presets);
+    }
     localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
   } catch (e) {
     console.error('Failed to save custom presets', e);
+  }
+}
+
+async function loadSavedPresets() {
+  try {
+    let presets = null;
+    if (window.electronAPI && window.electronAPI.getPresets) {
+      presets = await window.electronAPI.getPresets();
+    }
+    // Migration from legacy localStorage
+    if (!presets || !presets.length) {
+      const raw = localStorage.getItem(PRESETS_STORAGE_KEY);
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length) {
+            presets = parsed;
+            if (window.electronAPI && window.electronAPI.savePresets) {
+              window.electronAPI.savePresets(presets);
+            }
+          }
+        } catch (_) {}
+      }
+    }
+    state.presets = Array.isArray(presets) ? presets : [];
+  } catch (e) {
+    state.presets = [];
   }
 }
 
@@ -714,7 +769,7 @@ function applyCustomPreset(preset) {
   clearInterval(state.timerId);
   state.timerId = null;
   state.isPaused = true;
-  pauseBtn.textContent = 'Pause';
+  updatePlayPauseButton();
   sessionCompletedBanner.classList.add('hidden');
   presetsPanel.classList.add('hidden');
 
@@ -900,7 +955,76 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
-// Initialize on Load
-loadSavedState();
+// Support the Maker Actions
+const supportCreatorBtn = document.getElementById('support-creator-btn');
+const footerSupportBtn = document.getElementById('footer-support-btn');
+
+function getCreatorLinks() {
+  return window.CREATOR_CONFIG || {
+    kofi: 'https://ko-fi.com/yourname',
+    patreon: 'https://patreon.com/yourname',
+    website: 'https://github.com/yourname/pomomo',
+  };
+}
+
+if (supportCreatorBtn) {
+  supportCreatorBtn.addEventListener('click', () => {
+    window.electronAPI.openExternal(getCreatorLinks().kofi);
+  });
+}
+
+if (footerSupportBtn) {
+  footerSupportBtn.addEventListener('click', () => {
+    window.electronAPI.openExternal(getCreatorLinks().kofi);
+  });
+}
+
+// OS Power Events (Sleep / Wakeup handling)
+if (window.electronAPI && window.electronAPI.onPowerSuspend) {
+  window.electronAPI.onPowerSuspend(() => {
+    if (state.timerId && !state.isPaused) {
+      // Pause running timer so it does not drift or expire while computer is asleep
+      togglePlayPause();
+    }
+  });
+}
+
+if (window.electronAPI && window.electronAPI.onPowerResume) {
+  window.electronAPI.onPowerResume(() => {
+    updateTimerView();
+    renderQueue();
+  });
+}
+
+// Synchronous initial hydration from localStorage cache for 0ms first-frame render
+try {
+  const cachedRaw = localStorage.getItem(STORAGE_KEY);
+  if (cachedRaw) {
+    const cached = JSON.parse(cachedRaw);
+    if (cached && Array.isArray(cached.steps)) {
+      state.steps = cached.steps;
+      state.activeId = cached.activeId || (state.steps[0] ? state.steps[0].id : null);
+      state.finishedIds = new Set(Array.isArray(cached.finishedIds) ? cached.finishedIds : []);
+      const activeStep = getActiveStep();
+      state.remainingSeconds = cached.remainingSeconds || (activeStep ? activeStep.duration * 60 : 0);
+      state.isPaused = true;
+    }
+  }
+  const cachedPresets = localStorage.getItem(PRESETS_STORAGE_KEY);
+  if (cachedPresets) {
+    const parsed = JSON.parse(cachedPresets);
+    if (Array.isArray(parsed)) state.presets = parsed;
+  }
+} catch (_) {}
 renderQueue();
 updateTimerView();
+
+// Asynchronous authoritative sync with atomic disk storage
+async function initApp() {
+  await loadSavedState();
+  await loadSavedPresets();
+  renderQueue();
+  updateTimerView();
+}
+
+initApp();

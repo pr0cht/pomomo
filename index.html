@@ -9,6 +9,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; media-src 'self';" />
     <link rel="stylesheet" href="styles.css" />
     <script src="theme.js"></script>
+    <script src="creator-config.js"></script>
   </head>
   <body>
     <div class="app-shell">
@@ -69,6 +70,7 @@
           <p id="completed-stats-text" class="completed-stats-text">All blocks finished. Outstanding focus!</p>
           <div class="completed-actions">
             <button id="repeat-session-btn" class="secondary-btn">Restart</button>
+            <button id="support-creator-btn" class="pill-btn support-pill-btn" title="Support the maker">☕ Tip Maker</button>
             <button id="dismiss-completed-btn" class="ghost-btn">Dismiss</button>
           </div>
         </div>
@@ -127,9 +129,12 @@
 
       <!-- Keyboard Shortcuts Hint Footer -->
       <footer class="shortcuts-hint">
-        <span><kbd>Space</kbd> Start / Pause</span>
-        <span><kbd>S</kbd> Skip</span>
-        <span><kbd>R</kbd> Reset</span>
+        <div class="shortcuts-group">
+          <span><kbd>Space</kbd> Start / Pause</span>
+          <span><kbd>S</kbd> Skip</span>
+          <span><kbd>R</kbd> Reset</span>
+        </div>
+        <button id="footer-support-btn" class="footer-support-btn" title="Support the maker">☕ Support</button>
       </footer>
 
       <!-- Inline Edit Block Modal Backdrop -->

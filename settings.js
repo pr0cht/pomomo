@@ -101,9 +101,17 @@ function updateInputsFromTheme(theme) {
   themeBreakVal.textContent = (theme.breakColor || '#48A87C').toUpperCase();
 }
 
-function dispatchThemeUpdate() {
-  window.electronAPI.updateSetting('theme', activeTheme);
+let themeIpcDebounceTimer = null;
+function dispatchThemeUpdate(immediate = false) {
   applyThemePreview(activeTheme);
+  clearTimeout(themeIpcDebounceTimer);
+  if (immediate) {
+    window.electronAPI.updateSetting('theme', activeTheme);
+  } else {
+    themeIpcDebounceTimer = setTimeout(() => {
+      window.electronAPI.updateSetting('theme', activeTheme);
+    }, 50);
+  }
 }
 
 // Window Close
@@ -141,31 +149,31 @@ themeBgInput.addEventListener('input', () => {
   activeTheme.bgMain = themeBgInput.value;
   activeTheme.textColor = isColorDark(themeBgInput.value) ? '#F1EEF8' : '#382A2A';
   themeBgVal.textContent = themeBgInput.value.toUpperCase();
-  dispatchThemeUpdate();
+  dispatchThemeUpdate(false);
 });
 
 themeCardInput.addEventListener('input', () => {
   activeTheme.cardBg = themeCardInput.value;
   themeCardVal.textContent = themeCardInput.value.toUpperCase();
-  dispatchThemeUpdate();
+  dispatchThemeUpdate(false);
 });
 
 themeAccentInput.addEventListener('input', () => {
   activeTheme.accentColor = themeAccentInput.value;
   themeAccentVal.textContent = themeAccentInput.value.toUpperCase();
-  dispatchThemeUpdate();
+  dispatchThemeUpdate(false);
 });
 
 themeTaskInput.addEventListener('input', () => {
   activeTheme.taskColor = themeTaskInput.value;
   themeTaskVal.textContent = themeTaskInput.value.toUpperCase();
-  dispatchThemeUpdate();
+  dispatchThemeUpdate(false);
 });
 
 themeBreakInput.addEventListener('input', () => {
   activeTheme.breakColor = themeBreakInput.value;
   themeBreakVal.textContent = themeBreakInput.value.toUpperCase();
-  dispatchThemeUpdate();
+  dispatchThemeUpdate(false);
 });
 
 // Preset Buttons
@@ -175,7 +183,7 @@ themePresetBtns.forEach((btn) => {
     if (THEME_PRESETS[key]) {
       activeTheme = { ...THEME_PRESETS[key] };
       updateInputsFromTheme(activeTheme);
-      dispatchThemeUpdate();
+      dispatchThemeUpdate(true);
     }
   });
 });
@@ -184,7 +192,7 @@ themePresetBtns.forEach((btn) => {
 resetThemeBtn.addEventListener('click', () => {
   activeTheme = { ...THEME_PRESETS.rose };
   updateInputsFromTheme(activeTheme);
-  dispatchThemeUpdate();
+  dispatchThemeUpdate(true);
 });
 
 // Load Settings on DOM Ready
@@ -204,3 +212,35 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateInputsFromTheme(activeTheme);
   applyThemePreview(activeTheme);
 });
+
+// Support the Maker Handlers
+const supportKofiBtn = document.getElementById('support-kofi-btn');
+const supportPatreonBtn = document.getElementById('support-patreon-btn');
+const supportWebsiteBtn = document.getElementById('support-website-btn');
+
+function getCreatorLinks() {
+  return window.CREATOR_CONFIG || {
+    kofi: 'https://ko-fi.com/yourname',
+    patreon: 'https://patreon.com/yourname',
+    website: 'https://github.com/yourname/pomomo',
+  };
+}
+
+if (supportKofiBtn) {
+  supportKofiBtn.addEventListener('click', () => {
+    window.electronAPI.openExternal(getCreatorLinks().kofi);
+  });
+}
+
+if (supportPatreonBtn) {
+  supportPatreonBtn.addEventListener('click', () => {
+    window.electronAPI.openExternal(getCreatorLinks().patreon);
+  });
+}
+
+if (supportWebsiteBtn) {
+  supportWebsiteBtn.addEventListener('click', () => {
+    window.electronAPI.openExternal(getCreatorLinks().website);
+  });
+}
+
